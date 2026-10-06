@@ -23,7 +23,10 @@ SOURCES = {"skills-auto": ROOT / "skills" / "auto"}
 
 
 def git(*args) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
+    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True)
+    out = out.decode("utf-8", errors="replace") if isinstance(out := r.stdout, bytes) else out
+    err = err.decode("utf-8", errors="replace") if isinstance(err := r.stderr, bytes) else err
+    return subprocess.CompletedProcess(r.args, r.returncode, out, err)
 
 
 def main() -> int:
@@ -37,12 +40,15 @@ def main() -> int:
         problems.append("skills/ differs from the `freeze` tag")
     tag_commit = git("rev-parse", "freeze^{commit}").stdout.strip()
     hyp = [h for h in git("log", "freeze", "--format=%H", "--grep=^hypotheses").stdout.split() if h != tag_commit]
+    print("DEBUG hyp:", hyp)
     if not hyp:
         problems.append("no `hypotheses` commit before the freeze tag")
     else:
         report = git("show", f"{hyp[0]}:report/REPORT.md").stdout
+        print("DEBUG report length:", len(report) if report else "None")
         filled = [ln for ln in report.splitlines() if ln.lstrip("- ").startswith(("H1", "H2", "H3"))
                   and ln.split(":", 1)[-1].strip() and ":" in ln]
+        print("DEBUG filled:", len(filled))
         if len(filled) < 3:
             problems.append("report/REPORT.md in the `hypotheses` commit has fewer than 3 filled hypotheses")
     n = 0

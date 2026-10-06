@@ -21,17 +21,15 @@
 
 ## 2. Giả thuyết (commit TRƯỚC tag `freeze`, Phần 4.0)
 
-- H1 (subagents so với baseline):
-  Dự đoán **`subagents` ≈ `baseline`** trên tác vụ đánh giá (chênh lệch |Δ| ≤ 2 check).
-  Lý do: trên 3 tác vụ learn, baseline gặp lỗi **quy trình** (sửa file trong `tests/`, thiếu `tests/test_regressions.py`, thiếu `CHANGELOG.md`, JSON bị xong miss dấu phẩy, `answer.json` không tồn tại). Subagents có thể giúp *explorer* phát hiện rule và *reviewer* kiểm tra cuối, nhưng **không** có skill/kiến thức thủ tục để tránh vi phạm quy ước — chỉ là "thêm một lần đọc file". Tham khảo Anthropic (2025): hệ đa tác tử tốn ~15× token cho nghiên cứu, không hiệu quả cho tác vụ ngắn. Trong thí nghiệm của nhóm, mỗi lần chạy ≤ 35K token cho 1 task, subagent overhead sẽ lấn át lợi ích.
+- H1 (subagents so với baseline): Dự đoán **`subagents` ≈ `baseline`** trên tác vụ đánh giá (chênh lệch |Δ| ≤ 2 check).
+- H2 (skills-auto so với baseline): Dự đoán **`skills-auto` > `baseline` 1–4 check trên cùng tác vụ học**, **nhưng KHÔNG cải thiện rõ trên tác vụ đánh giá** (|Δ| ≤ 2 check).
+- H3 (tác vụ học so với tác vụ đánh giá): Dự đoán **điểm tác vụ học > điểm tác vụ đánh giá** trong mọi điều kiện (chênh 2–6 check).
 
-- H2 (skills-auto so với baseline):
-  Dự đoán **`skills-auto` > `baseline` 1–4 check trên cùng tác vụ học**, **nhưng KHÔNG cải thiện rõ trên tác vụ đánh giá** (|Δ| ≤ 2 check).
-  Lý do: skill do curator sinh ra từ lỗi learn (SyntaxError, JSON trailing-comma, missing regression tests). Đây là các quy tắc **cụ thể theo nhóm lỗi** (nhóm B "code-docstring-and-changelog", nhóm F "json-and-formats") nên khớp với tác vụ học cùng dạng. Tác vụ đánh giá (eval) đặt ra **một số quy ước mới** (như `parse_duration_all_formats`, `march_revenue_utc`) — skill sẽ *không* chứa chính xác cấu trúc/field mới đó, nên không giúp nhiều. Phù hợp với SkillEvolBench (2025): lợi ích trên học thường không chuyển sang tác vụ mới (quá khớp - overfitting).
+Căn cứ cho H1: trên 3 tác vụ learn, baseline gặp lỗi **quy trình** (sửa file trong `tests/`, thiếu `tests/test_regressions.py`, thiếu `CHANGELOG.md`, JSON bị miss dấu phẩy, `answer.json` không tồn tại). Subagents có thể giúp *explorer* phát hiện rule và *reviewer* kiểm tra cuối, nhưng **không** có skill/kiến thức thủ tục để tránh vi phạm quy ước — chỉ là "thêm một lần đọc file". Tham khảo Anthropic (2025): hệ đa tác tử tốn ~15× token cho nghiên cứu, không hiệu quả cho tác vụ ngắn. Trong thí nghiệm của nhóm, mỗi lần chạy ≤ 35K token cho 1 task, subagent overhead sẽ lấn át lợi ích.
 
-- H3 (tác vụ học so với tác vụ đánh giá):
-  Dự đoán **điểm tác vụ học > điểm tác vụ đánh giá** trong mọi điều kiện (chênh 2–6 check).
-  Lý do: tác vụ học có grader "công khai" (gợi ý chi tiết trong `details`); tác vụ đánh giá có grader "ẩn" — quy ước mới (`parse_duration_all_formats`, `march_revenue_utc`, `slot_no_shared_state`) mà baseline chưa từng thấy. Tác tử được train mặc định chỉ biết các mẫu phổ biến; rule mới trong eval buộc nó phải *đoán*, dễ sai.
+Căn cứ cho H2: skill do curator sinh ra từ lỗi learn (SyntaxError, JSON trailing-comma, missing regression tests). Đây là các quy tắc **cụ thể theo nhóm lỗi** (nhóm B "code-docstring-and-changelog", nhóm F "json-and-formats") nên khớp với tác vụ học cùng dạng. Tác vụ đánh giá (eval) đặt ra **một số quy ước mới** (như `parse_duration_all_formats`, `march_revenue_utc`) — skill sẽ *không* chứa chính xác cấu trúc/field mới đó, nên không giúp nhiều. Phù hợp với SkillEvolBench (2025): lợi ích trên học thường không chuyển sang tác vụ mới (quá khớp - overfitting).
+
+Căn cứ cho H3: tác vụ học có grader "công khai" (gợi ý chi tiết trong `details`); tác vụ đánh giá có grader "ẩn" — quy ước mới (`parse_duration_all_formats`, `march_revenue_utc`, `slot_no_shared_state`) mà baseline chưa từng thấy. Tác tử được train mặc định chỉ biết các mẫu phổ biến; rule mới trong eval buộc nó phải *đoán*, dễ sai.
 
 ## 4. Đường cơ sở và phân loại lỗi (Phần 2.2)
 
