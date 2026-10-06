@@ -6,5 +6,9 @@ __pycache__/
 *.egg-info/
 .lab-runner-*.log
 _*.py
+# Output sinh ra khi chạy: không cần commit, verify_freeze đọc từ ổ đĩa.
+results/
+# Thư mục wrapper cat/which/ls cho Windows — chỉ dùng local, không cần commit.
+.lab-bin/
 # Tài liệu và mã dành cho giảng viên (đáp án, bản cài đặt tham chiếu, bộ sinh dữ liệu). Chỉ giữ cục bộ.
 instructor/
